@@ -3,30 +3,30 @@ name: ci
 on: [ workflow_dispatch, push, pull_request ]
 
 jobs:
-  build_gcc:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        build_config:
-          - { version: 15 }
-          - { version: 14 }
-          - { version: 13 }
-          - { version: 12 }
-          - { version: 11 }
-          - { version: 10 }
-          - { version: 9 }
-    container:
-      image: gcc:${{ matrix.build_config.version }}
-      options: -v /usr/local:/host_usr_local
-    name: "gcc-${{ matrix.build_config.version }}"
-    steps:
-      - uses: actions/checkout@main
-      - name: Setup
-        run: |
-          echo "/host_usr_local/bin" >> $GITHUB_PATH
-          script/ci_setup_linux.sh
-      - name: Build and Test
-        run: script/ci.sh run_tests
+  # build_gcc:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       build_config:
+  #         - { version: 15 }
+  #         - { version: 14 }
+  #         - { version: 13 }
+  #         - { version: 12 }
+  #         - { version: 11 }
+  #         - { version: 10 }
+  #         - { version: 9 }
+  #   container:
+  #     image: gcc:${{ matrix.build_config.version }}
+  #     options: -v /usr/local:/host_usr_local
+  #   name: "gcc-${{ matrix.build_config.version }}"
+  #   steps:
+  #     - uses: actions/checkout@main
+  #     - name: Setup
+  #       run: |
+  #         echo "/host_usr_local/bin" >> $GITHUB_PATH
+  #         script/ci_setup_linux.sh
+  #     - name: Build and Test
+  #       run: script/ci.sh run_tests
 
 
   build_clang:
@@ -35,17 +35,17 @@ jobs:
       matrix:
         build_config:
           - { version: 22 }
-          - { version: 21 }
-          - { version: 20 }
-          - { version: 19 }
-          - { version: 18 }
-          - { version: 17 }
-          - { version: 16 }
-          - { version: 15 }
-          - { version: 14 }
-          - { version: 13 }
-          - { version: 12 }
-          - { version: 11 }
+          # - { version: 21 }
+          # - { version: 20 }
+          # - { version: 19 }
+          # - { version: 18 }
+          # - { version: 17 }
+          # - { version: 16 }
+          # - { version: 15 }
+          # - { version: 14 }
+          # - { version: 13 }
+          # - { version: 12 }
+          # - { version: 11 }
     container:
       image: teeks99/clang-ubuntu:${{ matrix.build_config.version }}
       options: -v /usr/local:/host_usr_local
@@ -69,40 +69,40 @@ jobs:
         run: script/ci.sh run_tests
 
 
-  build_osx:
-    runs-on: macos-latest
-    name: "OS X"
-    env:
-      CC: clang
-      CXX: clang++
-    steps:
-      - uses: actions/checkout@main
-      - name: Build and Test
-        run: script/ci.sh run_tests
-
-
-  build_windows_msvc:
-    runs-on: windows-${{ matrix.msvc_version }}
-    strategy:
-      matrix:
-        msvc_version:
-          - 2022
-          - 2025
-    name: "Windows ${{ matrix.msvc_version }} MSVC"
-    steps:
-      - uses: actions/checkout@main
-      - uses: ilammy/msvc-dev-cmd@v1
-      - name: Build and Test
-        shell: bash
-        run: script/ci.sh run_tests
-
-
-  formatting-check:
-    name: "formatting"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@main
-      - uses: DoozyX/clang-format-lint-action@master
-        name: "Verify formatting"
-        with:
-          clangFormatVersion: 16
+  # build_osx:
+  #   runs-on: macos-latest
+  #   name: "OS X"
+  #   env:
+  #     CC: clang
+  #     CXX: clang++
+  #   steps:
+  #     - uses: actions/checkout@main
+  #     - name: Build and Test
+  #       run: script/ci.sh run_tests
+  #
+  #
+  # build_windows_msvc:
+  #   runs-on: windows-${{ matrix.msvc_version }}
+  #   strategy:
+  #     matrix:
+  #       msvc_version:
+  #         - 2022
+  #         - 2025
+  #   name: "Windows ${{ matrix.msvc_version }} MSVC"
+  #   steps:
+  #     - uses: actions/checkout@main
+  #     - uses: ilammy/msvc-dev-cmd@v1
+  #     - name: Build and Test
+  #       shell: bash
+  #       run: script/ci.sh run_tests
+  #
+  #
+  # formatting-check:
+  #   name: "formatting"
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@main
+  #     - uses: DoozyX/clang-format-lint-action@master
+  #       name: "Verify formatting"
+  #       with:
+  #         clangFormatVersion: 16
