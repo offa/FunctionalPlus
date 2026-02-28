@@ -44,4 +44,10 @@ else ()
             -Wold-style-cast
             -Wparentheses
     )
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
+        CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 22)
+        list(APPEND project_warnings -Wno-c2y-extensions)
+    endif ()
 endif ()
+
+
