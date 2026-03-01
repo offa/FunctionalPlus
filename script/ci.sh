@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Central script called by the CI
 # Usage: 
 #    ci.sh {run_build|run_tests}
@@ -17,7 +19,7 @@ if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
     # Windows path handling is a never ending source of ...
     INSTALL_PREFIX="$USERPROFILE\\.local"
     INSTALL_PREFIX=$(cygpath -u "$INSTALL_PREFIX")  # Make CMake happy when using git bash under windows
-    export CMAKE_PREFIX_PATH=$INSTALL_PREFIX;$CMAKE_PREFIX_PATH  # Notice the ";" instead of ":"
+    export CMAKE_PREFIX_PATH="${INSTALL_PREFIX}${CMAKE_PREFIX_PATH:+;${CMAKE_PREFIX_PATH}}" # Notice the ";" instead of ":"
 else
     INSTALL_PREFIX="$HOME/.local"
     export CMAKE_PREFIX_PATH=$INSTALL_PREFIX:$CMAKE_PREFIX_PATH
@@ -26,7 +28,7 @@ fi
 # Function to install doctest
 _install_doctest() {
     cd "$REPO_DIR"
-    git clone --depth=1 --branch=v2.4.11 https://github.com/doctest/doctest
+    git clone --depth=1 --branch=v2.4.12 https://github.com/doctest/doctest
     cd doctest && mkdir -p build && cd build
     cmake .. -DDOCTEST_WITH_TESTS=OFF -DDOCTEST_WITH_MAIN_IN_STATIC_LIB=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX
     cmake --build . --config Release --target install
