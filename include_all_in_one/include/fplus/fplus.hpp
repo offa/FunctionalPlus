@@ -5719,6 +5719,27 @@ auto compose_result(Callables&&... callables)
     return internal::compose_binary_lift(bind_result,
         std::forward<Callables>(callables)...);
 }
+
+// API search type: compose_first_error_and_result : ((a -> Result b c), (a -> Result d e)) -> (a -> (Maybe c, Result d e))
+// Run two result-returning functions on the same input independently.
+// The first contributes only its potential error (as a Maybe), its Ok
+// value is discarded. The second's result is forwarded unchanged.
+// The second function is always called, regardless of whether the first
+// one failed. Useful for ancillary checks (logging, metrics, validation,
+// audit, cache lookup, ...) that may fail but should not block the main
+// computation.
+template <typename First, typename Second>
+auto compose_first_error_and_result(First first, Second second)
+{
+    return [first = std::move(first), second = std::move(second)](const auto& x) {
+        auto first_result = internal::invoke(first, x);
+        using FirstErr = typename std::decay_t<decltype(first_result)>::error_t;
+        auto first_err = is_error(first_result)
+            ? just<FirstErr>(unsafe_get_error(first_result))
+            : nothing<FirstErr>();
+        return std::make_pair(std::move(first_err), internal::invoke(second, x));
+    };
+}
 } // namespace fplus
 
 #include <algorithm>

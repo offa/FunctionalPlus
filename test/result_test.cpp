@@ -116,6 +116,34 @@ TEST_CASE("result_test - compose_result")
     REQUIRE_EQ(squareSumResult(5, 5), (ok<int, std::string>(100)));
 }
 
+TEST_CASE("result_test - compose_first_error_and_result")
+{
+    using namespace fplus;
+
+    const auto check_ok = [](int) {
+        return ok<int, std::string>(0);
+    };
+    const auto check_fail = [](int) {
+        return error<int, std::string>("check failed");
+    };
+    const auto run = [](int x) {
+        return x < 0
+            ? error<int, std::string>("negative input")
+            : ok<int, std::string>(x * x);
+    };
+
+    using Pair = std::pair<maybe<std::string>, result<int, std::string>>;
+
+    REQUIRE_EQ(compose_first_error_and_result(check_ok, run)(3),
+        Pair(nothing<std::string>(), ok<int, std::string>(9)));
+    REQUIRE_EQ(compose_first_error_and_result(check_ok, run)(-1),
+        Pair(nothing<std::string>(), error<int, std::string>("negative input")));
+    REQUIRE_EQ(compose_first_error_and_result(check_fail, run)(3),
+        Pair(just<std::string>("check failed"), ok<int, std::string>(9)));
+    REQUIRE_EQ(compose_first_error_and_result(check_fail, run)(-1),
+        Pair(just<std::string>("check failed"), error<int, std::string>("negative input")));
+}
+
 TEST_CASE("result_test - lift")
 {
     using namespace fplus;
